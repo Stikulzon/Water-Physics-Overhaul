@@ -4,7 +4,9 @@ import static net.skds.wpo.WPOConfig.MAX_FLUID_LEVEL;
 
 import java.util.Random;
 
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
@@ -23,7 +25,7 @@ public class FFluidDefaultV2 extends FFluidBasic {
 
 	@Override
 	protected void execute() {
-		Random r = new Random();
+		RandomSource r = new LegacyRandomSource(4);
 
 		BlockPos posD = pos.below();
 		if (posD.getY() < 0) {

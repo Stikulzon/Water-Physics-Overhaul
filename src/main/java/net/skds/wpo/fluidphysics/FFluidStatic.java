@@ -10,6 +10,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -61,7 +62,7 @@ public class FFluidStatic {
 
 	// ================ UTIL ================== //
 
-	public static Direction[] getRandomizedDirections(Random r, boolean addVertical) {
+	public static Direction[] getRandomizedDirections(RandomSource r, boolean addVertical) {
 
 		Direction[] dirs = new Direction[4];
 
@@ -795,7 +796,7 @@ public class FFluidStatic {
 				if (actioner.isComplete()) {
 					break;
 				}
-				for (Direction dir : getRandomizedDirections((Random) w.getRandom(), true)) {
+				for (Direction dir : getRandomizedDirections(w.getRandom(), true)) {
 					BlockPos pos2 = posn.relative(dir);
 					if (setAll.contains(pos2)) {
 						continue;
@@ -1127,7 +1128,7 @@ public class FFluidStatic {
 
 		@Override
 		public void addZero(Set<BlockPos> set, BlockPos p0) {
-			for (Direction d : getRandomizedDirections((Random) world.getRandom(), true)) {
+			for (Direction d : getRandomizedDirections(world.getRandom(), true)) {
 				BlockPos pos2 = p0.relative(d);
 				BlockState state2 = world.getBlockState(pos2);
 				if (isValidState(state2) && canReach(p0, pos2, obs, state2, fluid, world)) {
@@ -1213,7 +1214,7 @@ public class FFluidStatic {
 
 		@Override
 		public void addZero(Set<BlockPos> set, BlockPos p0) {
-			for (Direction d : getRandomizedDirections((Random) world.getRandom(), true)) {
+			for (Direction d : getRandomizedDirections(world.getRandom(), true)) {
 				BlockPos pos2 = p0.relative(d);
 				BlockState state2 = world.getBlockState(pos2);
 				if (isValidState(state2) && canReach(p0, pos2, obs, state2, fluid, world)) {
@@ -1309,7 +1310,7 @@ public class FFluidStatic {
 
 		@Override
 		public void addZero(Set<BlockPos> set, BlockPos p0) {
-			for (Direction d : getRandomizedDirections((Random) world.getRandom(), true)) {
+			for (Direction d : getRandomizedDirections(world.getRandom(), true)) {
 				BlockPos pos2 = p0.relative(d);
 				BlockState state2 = world.getBlockState(pos2);
 				if (isValidState(state2) && canReach(p0, pos2, obs, state2, fluid, world)) {
