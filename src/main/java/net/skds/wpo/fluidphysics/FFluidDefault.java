@@ -158,7 +158,7 @@ public class FFluidDefault extends FFluidBasic {
 			state = getUpdatedState(state, level);
 			int r = -1;
 			if (d > 0) {
-				r = w.getRandom().nextInt(c);
+				r = random.nextInt(c);
 			}
 
 			i = 0;

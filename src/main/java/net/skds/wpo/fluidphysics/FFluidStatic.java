@@ -62,7 +62,7 @@ public class FFluidStatic {
 
 	// ================ UTIL ================== //
 
-	public static Direction[] getRandomizedDirections(RandomSource r, boolean addVertical) {
+	public static Direction[] getRandomizedDirections(Random r, boolean addVertical) {
 
 		Direction[] dirs = new Direction[4];
 
@@ -763,6 +763,7 @@ public class FFluidStatic {
 		boolean frst = true;
 		boolean client = false;
 		Level w = actioner.getWorld();
+		Random random = new Random();
 		IWWSG wws = ((IWorldExtended) w).getWWS();
 		Set<BlockPos> setBan = new HashSet<>();
 		Set<BlockPos> setAll = new HashSet<>();
@@ -796,7 +797,7 @@ public class FFluidStatic {
 				if (actioner.isComplete()) {
 					break;
 				}
-				for (Direction dir : getRandomizedDirections(w.getRandom(), true)) {
+				for (Direction dir : getRandomizedDirections(random, true)) {
 					BlockPos pos2 = posn.relative(dir);
 					if (setAll.contains(pos2)) {
 						continue;
@@ -1106,6 +1107,7 @@ public class FFluidStatic {
 		int sl;
 		boolean complete = false;
 		Level world;
+		Random random;
 		Fluid fluid;
 		BlockEvent.EntityPlaceEvent event;
 		Long2ObjectLinkedOpenHashMap<BlockState> states = new Long2ObjectLinkedOpenHashMap<>();
@@ -1118,6 +1120,7 @@ public class FFluidStatic {
 			fluid = ofs.getType();
 			sl = ofs.getAmount();
 			world = w;
+			random = new Random();
 			event = e;
 		}
 
@@ -1128,7 +1131,7 @@ public class FFluidStatic {
 
 		@Override
 		public void addZero(Set<BlockPos> set, BlockPos p0) {
-			for (Direction d : getRandomizedDirections(world.getRandom(), true)) {
+			for (Direction d : getRandomizedDirections(random, true)) {
 				BlockPos pos2 = p0.relative(d);
 				BlockState state2 = world.getBlockState(pos2);
 				if (isValidState(state2) && canReach(p0, pos2, obs, state2, fluid, world)) {
@@ -1195,6 +1198,7 @@ public class FFluidStatic {
 		int sl;
 		boolean complete = false;
 		Level world;
+		Random random;
 		Fluid fluid;
 		Long2ObjectLinkedOpenHashMap<BlockState> states = new Long2ObjectLinkedOpenHashMap<>();
 		BlockState obs;
@@ -1205,6 +1209,7 @@ public class FFluidStatic {
 			fluid = ofs.getType();
 			sl = ofs.getAmount();
 			world = w;
+			random = new Random();
 		}
 
 		@Override
@@ -1214,7 +1219,7 @@ public class FFluidStatic {
 
 		@Override
 		public void addZero(Set<BlockPos> set, BlockPos p0) {
-			for (Direction d : getRandomizedDirections(world.getRandom(), true)) {
+			for (Direction d : getRandomizedDirections(random, true)) {
 				BlockPos pos2 = p0.relative(d);
 				BlockState state2 = world.getBlockState(pos2);
 				if (isValidState(state2) && canReach(p0, pos2, obs, state2, fluid, world)) {
@@ -1280,6 +1285,7 @@ public class FFluidStatic {
 		int sl;
 		boolean complete = false;
 		Level world;
+		Random random;
 		Fluid fluid;
 		// PistonBlockStructureHelper ps;
 		Set<BlockPos> movepos = new HashSet<>();
@@ -1294,6 +1300,7 @@ public class FFluidStatic {
 			this.fluid = ofs.getType();
 			this.sl = ofs.getAmount();
 			this.world = w;
+			this.random = new Random();
 			this.event = e;
 			movepos.addAll(ps.getToDestroy());
 			movepos.addAll(ps.getToPush());
@@ -1310,7 +1317,7 @@ public class FFluidStatic {
 
 		@Override
 		public void addZero(Set<BlockPos> set, BlockPos p0) {
-			for (Direction d : getRandomizedDirections(world.getRandom(), true)) {
+			for (Direction d : getRandomizedDirections(random, true)) {
 				BlockPos pos2 = p0.relative(d);
 				BlockState state2 = world.getBlockState(pos2);
 				if (isValidState(state2) && canReach(p0, pos2, obs, state2, fluid, world)) {

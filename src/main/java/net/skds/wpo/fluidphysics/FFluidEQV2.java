@@ -67,7 +67,7 @@ public class FFluidEQV2 extends FFluidBasic {
 		boolean[] diag2 = { false, true };
 
 		/// System.out.println("len");
-		for (Direction dir : FFluidStatic.getRandomizedDirections(w.getRandom(), false)) {
+		for (Direction dir : FFluidStatic.getRandomizedDirections(random, false)) {
 			for (boolean diag : diag2) {
 
 				boolean selPosb2 = false;

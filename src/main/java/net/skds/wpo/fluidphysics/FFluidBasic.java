@@ -20,6 +20,8 @@ import net.skds.core.util.blockupdate.UpdateTask;
 import net.skds.wpo.WPOConfig;
 import net.skds.wpo.util.interfaces.IFlowingFluid;
 
+import java.util.Random;
+
 public abstract class FFluidBasic extends BasicExecutor {
 
 	protected final int worker;
@@ -27,6 +29,7 @@ public abstract class FFluidBasic extends BasicExecutor {
 	protected final int MFL = WPOConfig.MAX_FLUID_LEVEL;
 	protected final Fluid fluid;
 	protected final ServerLevel w;
+	protected final Random random;
 	protected final BlockPos pos;
 	protected final long longpos;
 
@@ -41,6 +44,7 @@ public abstract class FFluidBasic extends BasicExecutor {
 		this.castOwner = owner;
 		this.worker = worker;
 		this.w = w;
+		this.random = new Random();
 		this.mode = mode;
 		this.state = getBlockState(pos);
 		this.fs = this.state.getFluidState();
