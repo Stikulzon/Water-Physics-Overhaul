@@ -1,60 +1,59 @@
 package net.skds.wpo.fluidphysics;
 
-import java.util.*;
-
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.material.*;
-import net.minecraftforge.registries.ForgeRegistries;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.piston.PistonStructureResolver;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Vec3i;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.stats.Stats;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.MobBucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.stats.Stats;
-import net.minecraft.tags.FluidTags;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.util.Mth;
-import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.Vec3;
-import net.minecraft.core.Vec3i;
+import net.minecraft.world.item.MobBucketItem;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.piston.PistonStructureResolver;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.*;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.common.ForgeMod;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
-import net.minecraftforge.event.world.BlockEvent;
-import net.minecraftforge.event.world.PistonEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.level.PistonEvent;
 import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.skds.core.api.IBlockExtended;
+import net.skds.core.api.IWWSG;
+import net.skds.core.api.IWorldExtended;
 import net.skds.wpo.WPOConfig;
 import net.skds.wpo.registry.BlockStateProps;
 import net.skds.wpo.util.ExtendedFHIS;
 import net.skds.wpo.util.interfaces.IBaseWL;
-import net.skds.core.api.IBlockExtended;
-import net.skds.core.api.IWWSG;
-import net.skds.core.api.IWorldExtended;
 import net.skds.wpo.util.pars.FluidPars;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.*;
 
 public class FFluidStatic {
 
@@ -670,7 +669,9 @@ public class FFluidStatic {
 		if (bu instanceof MobBucketItem) {
 			mobBucketItem = (MobBucketItem) bu;
 		}
-		Optional<IFluidHandlerItem> op = bucket.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY)
+//		Optional<IFluidHandlerItem> op = bucket.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY)
+//				.resolve();
+		Optional<IFluidHandlerItem> op = bucket.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM)
 				.resolve();
 		IFluidHandlerItem bh;
 		if (op.isPresent()) {
@@ -683,8 +684,8 @@ public class FFluidStatic {
 		if (!(f instanceof FlowingFluid) && f != Fluids.EMPTY) {
 			return;
 		}
-		Player p = e.getPlayer();
-		Level w = e.getWorld();
+		Player p = e.getEntity();
+		Level w = e.getLevel();
 		HitResult targ0 = e.getTarget();
 		HitResult targ = rayTrace(w, p,
 				f == Fluids.EMPTY ? ClipContext.Fluid.ANY : ClipContext.Fluid.NONE);
@@ -735,7 +736,7 @@ public class FFluidStatic {
 			}
 			BucketFlusher flusher = new BucketFlusher(w, f, bh, e);
 			if (iterateFluidWay(WPOConfig.COMMON.maxBucketDist.get(), pos, flusher) && mobBucketItem != null) {
-				mobBucketItem.checkExtraContent(e.getPlayer(), w, bucket, pos);
+				mobBucketItem.checkExtraContent(e.getEntity(), w, bucket, pos);
 			}
 		}
 	}
@@ -751,7 +752,7 @@ public class FFluidStatic {
 		float f5 = Mth.sin(-f * ((float) Math.PI / 180F));
 		float f6 = f3 * f4;
 		float f7 = f2 * f4;
-		double d0 = player.getAttribute(net.minecraftforge.common.ForgeMod.REACH_DISTANCE.get()).getValue();
+		double d0 = player.getAttribute(ForgeMod.ENTITY_REACH.get()).getValue();
 		Vec3 vector3d1 = vector3d.add((double) f6 * d0, (double) f5 * d0, (double) f7 * d0);
 		return worldIn.clip(
 				new ClipContext(vector3d, vector3d1, ClipContext.Block.OUTLINE, fluidMode, player));
@@ -794,7 +795,7 @@ public class FFluidStatic {
 				if (actioner.isComplete()) {
 					break;
 				}
-				for (Direction dir : getRandomizedDirections(w.getRandom(), true)) {
+				for (Direction dir : getRandomizedDirections((Random) w.getRandom(), true)) {
 					BlockPos pos2 = posn.relative(dir);
 					if (setAll.contains(pos2)) {
 						continue;
@@ -912,13 +913,11 @@ public class FFluidStatic {
 
 			fillStates(states, world);
 			event.setResult(Result.ALLOW);
-			Player p = event.getPlayer();
+			Player p = event.getEntity();
 			Item item = bucket.getContainer().getItem();
 			p.awardStat(Stats.ITEM_USED.get(item));
-			SoundEvent soundevent = fluid.getAttributes().getFillSound();
-			if (soundevent == null)
 //				boolean isLava = ForgeRegistries.FLUIDS.tags().getTag(FluidTags.LAVA).contains(fluid);  // to fix deprecation
-				soundevent = fluid.is(FluidTags.LAVA) ? SoundEvents.BUCKET_FILL_LAVA
+			SoundEvent soundevent = fluid.is(FluidTags.LAVA) ? SoundEvents.BUCKET_FILL_LAVA
 						: SoundEvents.BUCKET_FILL;
 			p.playSound(soundevent, 1.0F, 1.0F);
 
@@ -939,12 +938,10 @@ public class FFluidStatic {
 			fillStates(states, world);
 
 			event.setResult(Result.ALLOW);
-			Player p = event.getPlayer();
+			Player p = event.getEntity();
 			Item item = bucket.getContainer().getItem();
 			p.awardStat(Stats.ITEM_USED.get(item));
-			SoundEvent soundevent = fluid.getAttributes().getFillSound();
-			if (soundevent == null)
-				soundevent = fluid.is(FluidTags.LAVA) ? SoundEvents.BUCKET_FILL_LAVA
+			SoundEvent soundevent = fluid.is(FluidTags.LAVA) ? SoundEvents.BUCKET_FILL_LAVA
 						: SoundEvents.BUCKET_FILL;
 			p.playSound(soundevent, 1.0F, 1.0F);
 			if (!p.getAbilities().instabuild) {
@@ -1087,12 +1084,10 @@ public class FFluidStatic {
 			fillStates(states, world);
 
 			event.setResult(Result.ALLOW);
-			Player p = event.getPlayer();
+			Player p = event.getEntity();
 			Item item = bucket.getContainer().getItem();
 			p.awardStat(Stats.ITEM_USED.get(item));
-			SoundEvent soundevent = fluid.getAttributes().getEmptySound();
-			if (soundevent == null)
-				soundevent = fluid.is(FluidTags.LAVA) ? SoundEvents.BUCKET_EMPTY_LAVA
+			SoundEvent soundevent = fluid.is(FluidTags.LAVA) ? SoundEvents.BUCKET_EMPTY_LAVA
 						: SoundEvents.BUCKET_EMPTY;
 			p.playSound(soundevent, 1.0F, 1.0F);
 			if (!p.getAbilities().instabuild) {
@@ -1132,7 +1127,7 @@ public class FFluidStatic {
 
 		@Override
 		public void addZero(Set<BlockPos> set, BlockPos p0) {
-			for (Direction d : getRandomizedDirections(world.getRandom(), true)) {
+			for (Direction d : getRandomizedDirections((Random) world.getRandom(), true)) {
 				BlockPos pos2 = p0.relative(d);
 				BlockState state2 = world.getBlockState(pos2);
 				if (isValidState(state2) && canReach(p0, pos2, obs, state2, fluid, world)) {
@@ -1218,7 +1213,7 @@ public class FFluidStatic {
 
 		@Override
 		public void addZero(Set<BlockPos> set, BlockPos p0) {
-			for (Direction d : getRandomizedDirections(world.getRandom(), true)) {
+			for (Direction d : getRandomizedDirections((Random) world.getRandom(), true)) {
 				BlockPos pos2 = p0.relative(d);
 				BlockState state2 = world.getBlockState(pos2);
 				if (isValidState(state2) && canReach(p0, pos2, obs, state2, fluid, world)) {
@@ -1314,7 +1309,7 @@ public class FFluidStatic {
 
 		@Override
 		public void addZero(Set<BlockPos> set, BlockPos p0) {
-			for (Direction d : getRandomizedDirections(world.getRandom(), true)) {
+			for (Direction d : getRandomizedDirections((Random) world.getRandom(), true)) {
 				BlockPos pos2 = p0.relative(d);
 				BlockState state2 = world.getBlockState(pos2);
 				if (isValidState(state2) && canReach(p0, pos2, obs, state2, fluid, world)) {
@@ -1423,7 +1418,7 @@ public class FFluidStatic {
 	}
 
 	public static void onBlockPlace(BlockEvent.EntityPlaceEvent e) {
-		Level w = (Level) e.getWorld();
+		Level w = (Level) e.getLevel();
 		BlockPos pos = e.getPos();
 		BlockState oldState = e.getBlockSnapshot().getReplacedBlock();
 		FluidState oldFluidState = oldState.getFluidState();
@@ -1437,7 +1432,7 @@ public class FFluidStatic {
 		// frost walker replaces water with water (idk why) => delete water (since it is created again from melting ice)
 		// idk when FrostedIceBlock is placed...
 		int frostWalkerLevel = EnchantmentHelper.getEnchantmentLevel(Enchantments.FROST_WALKER, (LivingEntity) e.getEntity());
-		if (frostWalkerLevel > 0 && newBlock == Blocks.WATER && newState.getMaterial() == Material.WATER){
+		if (frostWalkerLevel > 0 && newBlock == Blocks.WATER){
 			return; // does not create water since frost walker does not trigger on partially filled water blocks
 		}
 		// if sponge => do nothing (deletes water)
@@ -1467,7 +1462,7 @@ public class FFluidStatic {
 	// ======================= PISTONS ======================= //
 
 	public static void onPistonPre(PistonEvent.Pre e) {
-		Level w = (Level) e.getWorld();
+		Level w = (Level) e.getLevel();
 		if (w.isClientSide || e.isCanceled()) {
 			return;
 		}

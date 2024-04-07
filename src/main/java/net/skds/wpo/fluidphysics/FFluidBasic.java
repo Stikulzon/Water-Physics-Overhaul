@@ -1,5 +1,6 @@
 package net.skds.wpo.fluidphysics;
 
+import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
@@ -88,7 +89,7 @@ public abstract class FFluidBasic extends BasicExecutor {
 			// world.markBlockRangeForRenderUpdate(pos, oldState, newState);
 
 			if (chunk.getFullStatus() != null
-					&& chunk.getFullStatus().isOrAfter(ChunkHolder.FullChunkStatus.TICKING)) {
+					&& chunk.getFullStatus().isOrAfter(FullChunkStatus.BLOCK_TICKING)) {
 				world.sendBlockUpdated(pos, oldState, newState, 3);
 			}
 
