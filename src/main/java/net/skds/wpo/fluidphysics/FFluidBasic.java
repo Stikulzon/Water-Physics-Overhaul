@@ -89,7 +89,6 @@ public abstract class FFluidBasic extends BasicExecutor {
 					&& !(oldState.getBlock() instanceof SimpleWaterloggedBlock)) {
 				((IFlowingFluid) fluid).beforeReplacingBlockCustom(world, pos, oldState);
 			}
-			// world.markBlockRangeForRenderUpdate(pos, oldState, newState);
 
 			if (chunk.getFullStatus() != null
 					&& chunk.getFullStatus().isOrAfter(FullChunkStatus.BLOCK_TICKING)) {
@@ -101,17 +100,9 @@ public abstract class FFluidBasic extends BasicExecutor {
 				world.updateNeighbourForOutputSignal(pos, block);
 			}
 
-			// world.onBlockStateChange(pos, oldState, newState);
-
 			newState.updateNeighbourShapes(world, pos, 0);
 
 			newState.onPlace(world, pos, oldState, false);
-
-			// ServerTickList<Fluid> stl = world.getPendingFluidTicks();
-			// if (oldState.getFluidState().getFluid() != fluid) {
-			// stl.scheduleTick(pos, fluid, FFluidStatic.getTickRate((FlowingFluid) fluid,
-			// world));
-			// }
 
 		}
 
@@ -167,8 +158,6 @@ public abstract class FFluidBasic extends BasicExecutor {
 					state2 = Blocks.AIR.defaultBlockState();
 					fs2 = state2.getFluidState();
 					l2 = 0;
-
-					// } else if (fs2.canDisplace(w, pos1, f1, dir.getOpposite())) {
 				} else {
 					ss = false;
 					break point1;
@@ -228,32 +217,6 @@ public abstract class FFluidBasic extends BasicExecutor {
 	}
 
 	protected boolean trySwap(BlockPos pos1, BlockPos pos2, int h, BlockState state1, BlockState state2) {
-		// if (h == 0) {
-		// return false;
-		// }
-		// FluidState fs1 = state1.getFluidState();
-		// FluidState fs2 = state2.getFluidState();
-		// if (fs1.isEmpty() || fs2.isEmpty()) {
-		// return false;
-		// }
-		// Fluid f1 = fs1.getFluid();
-		// Fluid f2 = fs2.getFluid();
-		// if (f1.isEquivalentTo(f2)) {
-		// return false;
-		// } else {
-		// FluidAttributes fa1 = f1.getAttributes();
-		// FluidAttributes fa2 = f2.getAttributes();
-		// boolean b = fa1.getDensity() > fa2.getDensity();
-		// if (b && h > 0) {
-		// return false;
-		// } else {
-		// BlockState ns1 = state2;
-		// BlockState ns2 = state1;
-		// setState(pos1, ns1);
-		// setState(pos2, ns2);
-		// return true;
-		// }
-		// }
 		return false;
 	}
 

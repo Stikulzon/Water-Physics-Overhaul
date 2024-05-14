@@ -11,10 +11,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(value = { LiquidBlock.class })
 public class FlowingFluidBlockMixin extends Block {
-
-	//private static final IntegerProperty F_LEVEL = BlockStateProps.FFLUID_LEVEL;
-
-
     public FlowingFluidBlockMixin(Properties properties) {
         super(properties);
     }
@@ -23,12 +19,4 @@ public class FlowingFluidBlockMixin extends Block {
     public int a(FlowingFluid fluid, LevelReader w) {
         return FFluidStatic.getTickRate(fluid, w);
     }
-
-
-    //public PushReaction getPushReaction(BlockState state) {
-    //    if (PhysEXConfig.COMMON.finiteFluids.get()) {
-    //        return FFluidStatic.getPushReaction(state);
-    //    }
-    //    return this.material.getPushReaction();
-    //}
 }

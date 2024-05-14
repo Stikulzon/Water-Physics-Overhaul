@@ -32,18 +32,6 @@ public class AdvancedBucket extends BucketItem implements ICapabilityProvider {
 
 	private ExtendedFHIS fhis;
 
-//	@Override
-//	public void initializeClient(Consumer<IItemRenderProperties> consumer) {
-//		// needed to use custom BlockEntityWithoutLevelRenderer for this item
-//		consumer.accept(new IItemRenderProperties() {
-//
-//			@Override
-//			public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
-//				return ISTER.getInstance();
-//			}
-//		});
-//	}
-
 	public static AdvancedBucket getBucketForReg(Fluid fluid) {
 		Properties prop = new Properties().stacksTo(fluid == Fluids.EMPTY ? 16 : 1)
 				.defaultDurability(WPOConfig.MAX_FLUID_LEVEL).setNoRepair();

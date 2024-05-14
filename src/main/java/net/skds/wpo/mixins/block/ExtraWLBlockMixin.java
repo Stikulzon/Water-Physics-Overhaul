@@ -36,15 +36,6 @@ public class ExtraWLBlockMixin extends Block implements IBaseWL, SimpleWaterlogg
 		}
 	}
 
-//	@Inject(method = "<init>", at = @At(value = "TAIL"))
-//	protected void ccc(BlockBehaviour.Properties properties, CallbackInfo ci) {
-//		if (this.defaultBlockState().hasProperty(BlockStateProperties.WATERLOGGED)) {
-//			// this.setDefaultState(this.getDefaultState().with(BlockStateProperties.WATERLOGGED,
-//			// Boolean.valueOf(false)));
-//			//DefaultStateFixer.addToFix(this);
-//		}
-//	}
-
 	@Override
 	public void fixDS() { // TODO what is this doing? is this ever called?
 		this.registerDefaultState(this.defaultBlockState().setValue(BlockStateProperties.WATERLOGGED, Boolean.valueOf(false)));

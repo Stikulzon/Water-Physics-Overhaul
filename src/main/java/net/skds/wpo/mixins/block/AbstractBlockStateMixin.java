@@ -1,5 +1,6 @@
 package net.skds.wpo.mixins.block;
 
+import net.skds.wpo.util.MixinHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -28,24 +29,25 @@ public abstract class AbstractBlockStateMixin {
 	@Inject(method = "getFluidState", at = @At(value = "HEAD"), cancellable = true)
 	public void getFluidStateM(CallbackInfoReturnable<FluidState> ci) {
 		BlockState bs = (BlockState) (Object) this;
-		if (bs.getBlock() instanceof IBaseWL) {
-			int level = bs.getValue(BlockStateProps.FFLUID_LEVEL);
-			FluidState fs;
-			if (bs.getValue(BlockStateProperties.WATERLOGGED)) {
-				level = (level == 0) ? WPOConfig.MAX_FLUID_LEVEL : level;
-				if (level >= WPOConfig.MAX_FLUID_LEVEL) {
-					fs = ((FlowingFluid) Fluids.WATER).getSource(false);
-				} else if (level <= 0) {
-					fs = Fluids.EMPTY.defaultFluidState();
+		if (MixinHelper.shouldAffectBlock(bs.getBlock())) {
+			if (bs.getBlock() instanceof IBaseWL) {
+				int level = bs.getValue(BlockStateProps.FFLUID_LEVEL);
+				FluidState fs;
+				if (bs.getValue(BlockStateProperties.WATERLOGGED)) {
+					level = (level == 0) ? WPOConfig.MAX_FLUID_LEVEL : level;
+					if (level >= WPOConfig.MAX_FLUID_LEVEL) {
+						fs = ((FlowingFluid) Fluids.WATER).getSource(false);
+					} else if (level <= 0) {
+						fs = Fluids.EMPTY.defaultFluidState();
+					} else {
+						fs = ((FlowingFluid) Fluids.WATER).getFlowing(level, false);
+					}
 				} else {
-					fs = ((FlowingFluid) Fluids.WATER).getFlowing(level, false);
+					fs = Fluids.EMPTY.defaultFluidState();
 				}
-			} else {
-				fs = Fluids.EMPTY.defaultFluidState();
+				ci.setReturnValue(fs);
 			}
-			ci.setReturnValue(fs);
 		}
-
 	}
 
 	@Inject(method = "isRandomlyTicking", at = @At(value = "HEAD"), cancellable = true)

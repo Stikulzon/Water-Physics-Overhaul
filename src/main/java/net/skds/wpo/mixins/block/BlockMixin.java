@@ -1,5 +1,11 @@
 package net.skds.wpo.mixins.block;
 
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.skds.wpo.WPOConfig;
+import net.skds.wpo.util.MixinHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,7 +23,8 @@ public class BlockMixin {
 
 	@Overwrite
 	protected final void registerDefaultState(BlockState state) {
-		if (this instanceof IBaseWL && state.hasProperty(BlockStateProperties.WATERLOGGED)) {
+		Block block = (Block) (Object) this;
+		if (MixinHelper.shouldAffectBlock(block) && state.hasProperty(BlockStateProperties.WATERLOGGED)) {
 			this.defaultBlockState = state.setValue(BlockStateProperties.WATERLOGGED, false);
 		} else {
 			this.defaultBlockState = state;

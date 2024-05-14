@@ -8,13 +8,16 @@ import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.skds.core.api.IBlockExtended;
 import net.skds.core.util.CustomBlockPars;
+import net.skds.wpo.util.MixinHelper;
 
 public class ParsApplier {
 
 	public static void applyFluidPars(ParsGroup<FluidPars> FG) {
 		for (Block b : FG.blocks) {
-			CustomBlockPars pars = ((IBlockExtended) b).getCustomBlockPars();
-			pars.put(FluidPars.class, FG.param);
+			if (MixinHelper.shouldAffectBlock(b)) {
+				CustomBlockPars pars = ((IBlockExtended) b).getCustomBlockPars();
+				pars.put(FluidPars.class, FG.param);
+			}
 		}
 	}
 

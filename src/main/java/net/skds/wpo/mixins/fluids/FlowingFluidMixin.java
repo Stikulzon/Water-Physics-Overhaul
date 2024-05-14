@@ -22,14 +22,6 @@ import net.skds.wpo.util.interfaces.IFlowingFluid;
 
 @Mixin(value = { FlowingFluid.class })
 public class FlowingFluidMixin implements IFlowingFluid {
-
-    // private static final IntegerProperty F_LEVEL = BlockStateProps.FFLUID_LEVEL;
-
-    // public int getFLevel() {
-
-    // return 0;
-    // }
-
     @Inject(method = "tick", at = @At(value = "HEAD"), cancellable = true)
     public void tick(Level worldIn, BlockPos pos, FluidState fs, CallbackInfo ci) {
         if (!worldIn.isClientSide) {

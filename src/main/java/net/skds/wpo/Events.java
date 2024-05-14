@@ -18,15 +18,10 @@ import net.skds.wpo.util.pars.ParsApplier;
 
 public class Events {
 
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void test(PistonEvent.Pre e) {
+	@SubscribeEvent
+	public void onPistonEvent(PistonEvent.Pre e) {
 		FFluidStatic.onPistonPre(e);
 	}
-
-	// @SubscribeEvent
-	// public void attachCapability(AttachCapabilitiesEvent<Chunk> e) {
-	// new ChunkDataProvider().init(e);
-	// }
 
 	@SubscribeEvent
 	public void onBucketEvent(FillBucketEvent e) {
@@ -41,26 +36,20 @@ public class Events {
 	@SubscribeEvent
 	public void onWWSAttach(OnWWSAttachEvent e) {
 		IWWSG wwsg = e.getWWS();
-		Level w = e.getWorld();
-		if (!w.isClientSide) {
-			WorldWorkSet w1 = new WorldWorkSet((ServerLevel) w, wwsg);
-			wwsg.addWWS(w1);
+		Level world = e.getWorld();
+		if (!world.isClientSide) {
+			WorldWorkSet wws = new WorldWorkSet((ServerLevel) world, wwsg);
+			wwsg.addWWS(wws);
 		}
 	}
 
 	@SubscribeEvent
 	public void onTagsUpdated(TagsUpdatedEvent e) {
 		ParsApplier.refresh();
-		// System.out.println("hhhhhhhhhhhhhhhhhhhh");
 	}
-
-	//public static int c = 0;
-	//public static long t = 0;
 
 	@SubscribeEvent
 	public void onSyncMTHook(SyncTasksHookEvent e) {
-		//c = 0;
-		//t = System.currentTimeMillis();
 		ThreadProvider.doSyncFork(WorldWorkSet::nextTask);
 	}
 }
