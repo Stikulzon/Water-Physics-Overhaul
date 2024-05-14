@@ -16,7 +16,6 @@ public abstract class FluidTask implements ITaskRunnable {
 	public final double priority;
 
 	public FluidTask(WorldWorkSet owner, long pos) {
-		//System.out.println(BlockPos.fromLong(pos));
 		this.owner = owner;
 		this.pos = pos;
 		uuid = uuid + 1.0E-6;

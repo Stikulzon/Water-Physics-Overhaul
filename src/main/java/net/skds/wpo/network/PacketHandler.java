@@ -12,10 +12,6 @@ public class PacketHandler {
 	private static final String PROTOCOL_VERSION = "1";
 	private static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(WPO.MOD_ID, "network"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
 
-	public static void send(Player target, Object message) {
-        CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer)target), message);
-	}
-
 	public static SimpleChannel get() {
 		return CHANNEL;
 	}

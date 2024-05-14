@@ -51,7 +51,7 @@ public class FluidPars {
 				return null;
 			}
 			JsonArray dbfJ = dbfElement.getAsJsonArray();
-			if (dbfJ.size() > 0) {
+			if (!dbfJ.isEmpty()) {
 				dbfJ.forEach(jse -> {
 					String id = jse.getAsString();
 					Fluid fluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(id));

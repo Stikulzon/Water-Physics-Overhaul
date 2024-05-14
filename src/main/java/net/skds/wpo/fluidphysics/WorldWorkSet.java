@@ -21,8 +21,8 @@ public class WorldWorkSet implements IWWS {
 
 	public ConcurrentHashMap.KeySetView<Long, Boolean> excludedTasks = ConcurrentHashMap.newKeySet();
 
-	private ConcurrentHashMap.KeySetView<Long, Boolean> lockedEq = ConcurrentHashMap.newKeySet();
-	private ConcurrentHashMap<Long, Integer> ntt = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap.KeySetView<Long, Boolean> lockedEq = ConcurrentHashMap.newKeySet();
+	private final ConcurrentHashMap<Long, Integer> ntt = new ConcurrentHashMap<>();
 	private static final Comparator<FluidTask> comp = new Comparator<FluidTask>() {
 		@Override
 		public int compare(FluidTask k1, FluidTask k2) {
@@ -37,8 +37,8 @@ public class WorldWorkSet implements IWWS {
 			return comp;
 		}
 	};
-	private static ConcurrentSkipListSet<FluidTask> TASKS = new ConcurrentSkipListSet<>(comp);
-	private static ConcurrentLinkedQueue<FluidTask> DELAYED_TASKS = new ConcurrentLinkedQueue<>();
+	private static final ConcurrentSkipListSet<FluidTask> TASKS = new ConcurrentSkipListSet<>(comp);
+	private static final ConcurrentLinkedQueue<FluidTask> DELAYED_TASKS = new ConcurrentLinkedQueue<>();
 
 	public WorldWorkSet(ServerLevel w, IWWSG owner) {
 		world = (ServerLevel) w;
@@ -51,12 +51,6 @@ public class WorldWorkSet implements IWWS {
 
 	public void clearEqLock(long l) {
 		lockedEq.remove(l);
-	}
-
-	public void addEQTask(long l, FlowingFluid fluid) {
-		FluidTask task = new FluidTask.EQTask(this, l);
-		// WWSGlobal.pushTask(task);
-		TASKS.add(task);
 	}
 
 	public void addEqLock(long l) {
@@ -95,13 +89,13 @@ public class WorldWorkSet implements IWWS {
 			}
 			boolean tested = false;
 			FluidTask task;
-			while ((task = TASKS.pollFirst()) != null && !tested) {
+			while ((task = TASKS.pollFirst()) != null) {
 				tested = TaskBlocker.test(i, task);
 				// System.out.println(tested);
 				if (tested) {
 					task.worker = i;
 					return task;
-				} else if (task != null) {
+				} else {
 					DELAYED_TASKS.add(task);
 				}
 			}

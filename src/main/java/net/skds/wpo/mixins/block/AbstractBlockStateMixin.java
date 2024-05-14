@@ -1,6 +1,7 @@
 package net.skds.wpo.mixins.block;
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -34,11 +35,11 @@ public abstract class AbstractBlockStateMixin {
 			if (bs.getValue(BlockStateProperties.WATERLOGGED)) {
 				level = (level == 0) ? WPOConfig.MAX_FLUID_LEVEL : level;
 				if (level >= WPOConfig.MAX_FLUID_LEVEL) {
-					fs = ((FlowingFluid) Fluids.WATER).getSource(false);
+					fs = Fluids.WATER.getSource(false);
 				} else if (level <= 0) {
 					fs = Fluids.EMPTY.defaultFluidState();
 				} else {
-					fs = ((FlowingFluid) Fluids.WATER).getFlowing(level, false);
+					fs = Fluids.WATER.getFlowing(level, false);
 				}
 			} else {
 				fs = Fluids.EMPTY.defaultFluidState();
@@ -54,7 +55,7 @@ public abstract class AbstractBlockStateMixin {
 
 	@Inject(method = "neighborChanged", at = @At(value = "HEAD"), cancellable = false)
 	public void neighborChangedM(Level worldIn, BlockPos posIn, Block blockIn, BlockPos fromPosIn, boolean isMoving,
-			CallbackInfo ci) {
+								 CallbackInfo ci) {
 		// super.neighborChanged(worldIn, posIn, blockIn, fromPosIn, isMoving);
 		if (((BlockState) (Object) this).getBlock() instanceof IBaseWL) {
 			BlockState s = (BlockState) (Object) this;
@@ -67,7 +68,7 @@ public abstract class AbstractBlockStateMixin {
 
 	@Inject(method = "updateShape", at = @At(value = "HEAD"), cancellable = false)
 	public void updateShapeM(Direction face, BlockState queried, LevelAccessor worldIn, BlockPos currentPos,
-			BlockPos offsetPos, CallbackInfoReturnable<BlockState> ci) {
+							 BlockPos offsetPos, CallbackInfoReturnable<BlockState> ci) {
 		if (((BlockState) (Object) this).getBlock() instanceof IBaseWL) {
 			BlockState s = (BlockState) (Object) this;
 			fixFFLNoWL(worldIn, s, currentPos);
@@ -77,6 +78,7 @@ public abstract class AbstractBlockStateMixin {
 		}
 	}
 
+	@Unique
 	private void fixFFLNoWL(LevelAccessor w, BlockState s, BlockPos p) {
 		if (!s.getValue(BlockStateProperties.WATERLOGGED) && s.getValue(BlockStateProps.FFLUID_LEVEL) > 0) {
 			w.setBlock(p, s.setValue(BlockStateProps.FFLUID_LEVEL, 0), 3);

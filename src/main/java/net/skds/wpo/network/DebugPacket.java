@@ -1,5 +1,6 @@
 package net.skds.wpo.network;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 import net.minecraft.client.Minecraft;
@@ -11,7 +12,7 @@ import net.minecraftforge.network.NetworkEvent;
 
 public class DebugPacket {
 
-	private BlockPos pos;
+	private final BlockPos pos;
 
 	public DebugPacket(BlockPos pos) {
 		this.pos = pos;
@@ -31,7 +32,7 @@ public class DebugPacket {
 
 	void handle(Supplier<NetworkEvent.Context> context) {		
 		Minecraft minecraft = Minecraft.getInstance();
-		ClientLevel w = (ClientLevel) minecraft.player.level();
+		ClientLevel w = (ClientLevel) Objects.requireNonNull(minecraft.player).level();
 		w.addParticle(ParticleTypes.FLAME, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0, 0.06, 0);
 		context.get().setPacketHandled(true);
 	}

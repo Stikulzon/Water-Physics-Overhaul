@@ -14,6 +14,5 @@ public class FluidTasksManager {
 
 		FluidTask task = new FluidTask.DefaultTask(wws, pos.asLong());
 		WorldWorkSet.pushTask(task);
-		//System.out.println(pos);
 	}
 }

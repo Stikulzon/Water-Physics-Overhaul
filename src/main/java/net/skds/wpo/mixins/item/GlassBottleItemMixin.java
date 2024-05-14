@@ -15,10 +15,8 @@ import net.minecraft.world.level.ClipContext.Fluid;
 import net.minecraft.world.level.Level;
 import net.skds.wpo.fluidphysics.FFluidStatic;
 
-@Mixin(value = { BottleItem.class })
+@Mixin(BottleItem.class)
 public class GlassBottleItemMixin {
-
-	// , args = "Lnet/minecraft/util/math/RayTraceContext$FluidMode;"
 	@ModifyArg(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/BottleItem;getPlayerPOVHitResult(Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/level/ClipContext$Fluid;)Lnet/minecraft/world/phys/BlockHitResult;", args = "Lnet/minecraft/world/level/ClipContext$Fluid;"))
 	public Fluid aaa(Fluid fm) {
 		return Fluid.ANY;
@@ -27,9 +25,6 @@ public class GlassBottleItemMixin {
 
 	@Inject(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/Level;playSound(Lnet/minecraft/world/entity/player/Player;DDDLnet/minecraft/sounds/SoundEvent;Lnet/minecraft/sounds/SoundSource;FF)V"), cancellable = true)
 	public void bbb(Level w, Player p, InteractionHand hand, CallbackInfoReturnable<InteractionResultHolder<ItemStack>> ci) {
-		FFluidStatic.onBottleUse(w, p, hand, ci, p.getItemInHand(hand));
+		FFluidStatic.onBottleUse(w, p, ci, p.getItemInHand(hand));
 	}
-
-	// ================= SHADOW ================ //
-
 }

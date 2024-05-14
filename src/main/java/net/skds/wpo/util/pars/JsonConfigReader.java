@@ -13,11 +13,7 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -85,11 +81,10 @@ public class JsonConfigReader {
 			}
 		}
 		BufferedInputStream is = new BufferedInputStream(
-				WPO.class.getClassLoader().getResourceAsStream(Paths.get(WPO.MOD_ID, "special", "fluids.json").toString()));
+				Objects.requireNonNull(WPO.class.getClassLoader().getResourceAsStream(Paths.get(WPO.MOD_ID, "special", "fluids.json").toString())));
 		boolean ex = fileF.exists();
 		if (ex) {
 			fileF.delete();
-			// LOGGER.info(fileF.delete());
 		}
 		Files.copy(is, fileF.toPath());
 		is.close();
@@ -126,7 +121,7 @@ public class JsonConfigReader {
 		blockListSet = bls.getAsJsonObject().entrySet();
 		propertyListSet = pls.getAsJsonObject().entrySet();
 
-		if (blockListSet.size() == 0) {
+		if (blockListSet.isEmpty()) {
 			LOGGER.error("Empty block list file!");
 			return false;
 		}
@@ -144,7 +139,7 @@ public class JsonConfigReader {
 				return false;
 			}
 			JsonArray blocklist = listElement.getAsJsonArray();
-			if (blocklist.size() == 0) {
+			if (blocklist.isEmpty()) {
 				LOGGER.warn("Block list \"" + key + "\" is empty!");
 			}
 			JsonElement properties = propertyListMap.get(key);
@@ -174,35 +169,6 @@ public class JsonConfigReader {
 		FP.put(key, group);
 	}
 
-	public static Set<Block> getBlocksFromString(Set<String> list) {
-		Set<Block> blocks = new HashSet<>();
-		for (String id : list) {
-			if (id.charAt(0) == '#') {
-				id = id.substring(1);
-				ITagManager<Block> tagManager = ForgeRegistries.BLOCKS.tags();
-				if (tagManager == null) {
-					LOGGER.error("Forge registry \"" + ForgeRegistries.BLOCKS + "\" does not support tags!");
-					continue;
-				}
-				TagKey<Block> tagKey = tagManager.createTagKey(new ResourceLocation(id));
-				ITag<Block> tag = tagManager.getTag(tagKey);
-//				if (tag == null) {
-//					LOGGER.error("Block tag \"" + id + "\" does not exist!");
-//					continue;
-//				}
-				blocks.addAll(tag.stream().toList());
-			} else {
-				Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(id));
-				if (block != null && block != Blocks.AIR) {
-					blocks.add(block);
-				} else {
-					LOGGER.error("Block \"" + id + "\" does not exist!");
-				}
-			}
-		}
-		return blocks;
-	}
-
 	public static Set<Block> getBlocksFromJA(JsonArray arr) {
 		Set<Block> blocks = new HashSet<>();
 		for (JsonElement je : arr) {
@@ -216,10 +182,6 @@ public class JsonConfigReader {
 				}
 				TagKey<Block> tagKey = tagManager.createTagKey(new ResourceLocation(id));
 				ITag<Block> tag = tagManager.getTag(tagKey);
-//				if (tag == null) {
-//					LOGGER.error("Block tag \"" + id + "\" does not exist!");
-//					continue;
-//				}
 				blocks.addAll(tag.stream().toList());
 			} else {
 				Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(id));

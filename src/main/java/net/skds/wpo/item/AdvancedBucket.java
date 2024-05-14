@@ -32,18 +32,6 @@ public class AdvancedBucket extends BucketItem implements ICapabilityProvider {
 
 	private ExtendedFHIS fhis;
 
-//	@Override
-//	public void initializeClient(Consumer<IItemRenderProperties> consumer) {
-//		// needed to use custom BlockEntityWithoutLevelRenderer for this item
-//		consumer.accept(new IItemRenderProperties() {
-//
-//			@Override
-//			public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
-//				return ISTER.getInstance();
-//			}
-//		});
-//	}
-
 	public static AdvancedBucket getBucketForReg(Fluid fluid) {
 		Properties prop = new Properties().stacksTo(fluid == Fluids.EMPTY ? 16 : 1)
 				.defaultDurability(WPOConfig.MAX_FLUID_LEVEL).setNoRepair();
@@ -59,16 +47,6 @@ public class AdvancedBucket extends BucketItem implements ICapabilityProvider {
 	@OnlyIn(Dist.CLIENT) // TODO remove all of these: not needed (also do care about where the code runs)
 	public void appendHoverText(ItemStack stack, @Nullable Level worldIn, List<Component> tooltip,
 								TooltipFlag flagIn) {
-//		ExtendedFHIS fh = new ExtendedFHIS(stack, 1000);
-//		FluidStack fst = fh.getFluid();
-//		Fluid f = fst.getFluid();
-//		//Block b = f.getDefaultState().getBlockState().getBlock();
-//		ChatFormatting form = ChatFormatting.DARK_PURPLE;
-//		//ITextComponent texComp = new TranslationTextComponent(b.getTranslationKey()).mergeStyle(form);
-//		Component texComp = new TranslatableContents(f.getBucket().asItem().asItem().getTranslationKey()).withStyle(form);
-//		tooltip.add(texComp);
-//		texComp = new TextComponent(fst.getAmount() + " mb");
-//		tooltip.add(texComp);
 	}
 
 	@Override
