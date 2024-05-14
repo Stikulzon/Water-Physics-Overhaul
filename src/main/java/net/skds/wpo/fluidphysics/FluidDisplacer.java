@@ -20,7 +20,6 @@ import static net.skds.wpo.fluidphysics.FFluidStatic.*;
 public class FluidDisplacer implements IFluidActionIteratable {
 
     int mfl = WPOConfig.MAX_FLUID_LEVEL;
-    // int bucketLevels = PhysEXConfig.MAX_FLUID_LEVEL;
     int sl;
     boolean complete = false;
     Level world;

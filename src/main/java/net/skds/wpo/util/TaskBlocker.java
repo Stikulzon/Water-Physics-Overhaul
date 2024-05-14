@@ -5,7 +5,7 @@ import net.skds.wpo.fluidphysics.FluidTask;
 
 public class TaskBlocker {
 
-	private static FluidTask[] blockMap = new FluidTask[4];
+	private static final FluidTask[] blockMap = new FluidTask[4];
 
 	public static void finish(int i) {
 		blockMap[i] = null;

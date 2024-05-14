@@ -13,8 +13,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.server.level.ServerLevel;
 import net.skds.wpo.WPOConfig;
 
-import java.util.Random;
-
 public class FFluidEQ extends FFluidBasic {
 
 	FFluidEQ(ServerLevel w, BlockPos pos, WorldWorkSet owner, FFluidBasic.Mode mode, int worker) {
@@ -31,8 +29,6 @@ public class FFluidEQ extends FFluidBasic {
 	
 	public void equalize() {
 		boolean slide = WPOConfig.COMMON.maxSlideDist.get() > 0;
-		// boolean slide = false;
-		// setState(pos.add(0, 16, 0), Blocks.STONE.getDefaultState());
 		boolean slided = false;
 		int i0 = random.nextInt(4);
 		if (slide && !canReach(pos, pos.below(), state, getBlockState(pos.below())) && level == 1) {
@@ -57,10 +53,7 @@ public class FFluidEQ extends FFluidBasic {
 	}
 
 	public boolean slide() {
-		// setState(pos.add(0, 16, 0), Blocks.STONE.getDefaultState());
-		// System.out.println("x");
-		int slideDist = WPOConfig.COMMON.maxSlideDist.get();
-		int lenmin = slideDist;
+        int lenmin = WPOConfig.COMMON.maxSlideDist.get();
 
 		boolean selPosb = false;
 		BlockPos selPos = pos;
@@ -68,7 +61,6 @@ public class FFluidEQ extends FFluidBasic {
 
 		boolean[] diag2 = { false, true };
 
-		/// System.out.println("len");
 		for (Direction dir : FFluidStatic.getRandomizedDirections(random, false)) {
 			for (boolean diag : diag2) {
 
@@ -78,23 +70,22 @@ public class FFluidEQ extends FFluidBasic {
 				int len = lenmin;
 				BlockPos pos2 = pos;
 				BlockPos pos1 = pos;
-				boolean cont = true;
 				boolean side = false;
 				BlockState state1 = state;
 				BlockState state2 = state;
 				boolean bl = false;
 
 				// System.out.println(len);
-				wh: while (cont && len > 0) {
+				wh: while (len > 0) {
 					pos1 = pos2;
 					state1 = state2;
 					if (diag) {
 						if (side) {
 							dir = dir.getClockWise();
-							side = !side;
+							side = false;
 						} else {
 							dir = dir.getCounterClockWise();
-							side = !side;
+							side = true;
 						}
 					}
 					pos2 = pos1.relative(dir);
@@ -129,7 +120,7 @@ public class FFluidEQ extends FFluidBasic {
 		if (selPosb && validate(selPos)) {
 			//System.out.println("bl");
 			selState = getBlockState(selPos);
-			selState = flowToPosEq(pos, selPos, selState, -1);
+			selState = flowToPosEq(selState, -1);
 			setState(selPos, selState);
 			setState(pos, state);
 			return true;
@@ -138,25 +129,17 @@ public class FFluidEQ extends FFluidBasic {
 	}
 
 	public void equalizeLine(Direction dir, boolean diag, int len) {
-		// len = (int) ((float) len * fluidWorker.eqSpeed);
-		// System.out.println(fluidWorker.eqSpeed);
-		// len=8;
 		BlockPos pos2 = pos;
 		BlockPos pos1 = pos;
 		int len2 = len;
-		boolean cont = true;
 		boolean side = false;
 		BlockState state1 = state;
 		BlockState state2 = state;
 		int hmod = 0;
-		boolean bl = false;
 
 		boolean blocked = false;
 
-		while (cont && len > 0) {
-
-			// if (diag) setState(pos1.down(), Blocks.BIRCH_LOG.getDefaultState());
-			// setState(pos1.add(0, 16, 0), Blocks.STONE.getDefaultState());
+		while (len > 0) {
 
 			if (!diag && len2 - len == 1) {
 				equalizeLine(dir, true, len);
@@ -165,10 +148,10 @@ public class FFluidEQ extends FFluidBasic {
 			if (diag) {
 				if (side) {
 					dir = dir.getClockWise();
-					side = !side;
+					side = false;
 				} else {
 					dir = dir.getCounterClockWise();
-					side = !side;
+					side = true;
 				}
 			}
 			pos1 = pos2;
@@ -180,12 +163,9 @@ public class FFluidEQ extends FFluidBasic {
 
 			if (!blocked && canReach(pos1u, pos1, state1u, state1)
 					&& (!fs1u.isEmpty() && isThisFluid(fs1u.getType()))) {
-				// state1 = state1u;
-				// System.out.println("x");
 				pos2 = pos1u;
 				state2 = state1u;
 				++hmod;
-				bl = true;
 			} else {
 				pos2 = pos1.relative(dir);
 				state2 = getBlockState(pos2);
@@ -194,13 +174,6 @@ public class FFluidEQ extends FFluidBasic {
 			FluidState fs2 = state2.getFluidState();
 
 			if (isPassedEq(pos2)) {
-				// fluidWorker.addNTTask(pos2.toLong(), FFluidStatic.getTickRate((FlowingFluid)
-				// fluid, w));
-				// fluidWorker.addNTTask(pos.toLong(), FFluidStatic.getTickRate((FlowingFluid)
-				// fluid, w));
-				// FluidTasksManager.addNTTask(w, pos1, FFluidStatic.getTickRate((FlowingFluid)
-				// fluid, w));
-				// System.out.println(pos2);
 				break;
 			}
 
@@ -208,14 +181,11 @@ public class FFluidEQ extends FFluidBasic {
 					&& (isThisFluid(fs2.getType()) || (fs2.isEmpty() && level > 1))) {
 				if ((state1.getBlock() instanceof SimpleWaterloggedBlock || state2.getBlock() instanceof SimpleWaterloggedBlock)
 						&& !(fluid instanceof WaterFluid)) {
-					// System.out.println("dd");
 					break;
 				}
-				bl = true;
 				blocked = false;
 
 			} else {
-				// pos1 = pos2;
 				pos2 = pos1.below();
 				state1 = state2;
 				state2 = getBlockState(pos2);
@@ -223,7 +193,6 @@ public class FFluidEQ extends FFluidBasic {
 				if (canReach(pos1, pos2, state1, state2)
 						&& (!fs2.isEmpty() && isThisFluid(fs2.getType()) || fs2.isEmpty())) {
 					--hmod;
-					bl = true;
 					blocked = true;
 
 				} else {
@@ -231,21 +200,15 @@ public class FFluidEQ extends FFluidBasic {
 				}
 			}
 
-			if (bl && !cancel && validate(pos2)) {
+			if (!cancel && validate(pos2)) {
 				int level2 = fs2.getAmount();
-					//boolean b = level2 == 8 && level == 1;
-					//if (b) {
-					//	System.out.println(hmod);
-					//}
-				//int hmod2 = hmod >= 1 ? 1 : hmod <= -1 ? -1 : 0;
 				int l1 = getAbsoluteLevel(pos.getY(), level);
 				int l2 = getAbsoluteLevel(pos2.getY(), level2);
 				if (Mth.abs(l1 - l2) > 1
 						&& !FFluidStatic.canOnlyFullCube(state2)) {
-					state2 = flowToPosEq(pos, pos2, state2, hmod);
+					state2 = flowToPosEq(state2, hmod);
 					setState(pos2, state2);
 					setState(pos, state);
-					// System.out.println(level + " ss: " + level2 + state2);
 					addPassedEq(pos2);
 					return;
 				}
@@ -254,7 +217,7 @@ public class FFluidEQ extends FFluidBasic {
 		}
 	}
 
-	private BlockState flowToPosEq(BlockPos pos1, BlockPos pos2, BlockState state2, int l) {
+	private BlockState flowToPosEq(BlockState state2, int l) {
 
 		BlockState state2n = state2;
 
@@ -325,10 +288,6 @@ public class FFluidEQ extends FFluidBasic {
 		}
 
 		FluidState fs2 = state2.getFluidState();
-		// if ((!fs2.isEmpty() && !isThisFluid(fs2.getFluid())) &&
-		// !state1.getFluidState().canDisplace(w, pos2,
-		// state2.getFluidState().getFluid(), FFluidStatic.dirFromVec(pos1, pos2)))
-		// return false;
 
 		int level2 = fs2.getAmount();
 		if (level2 >= MAX_FLUID_LEVEL && !ignoreLevels) {

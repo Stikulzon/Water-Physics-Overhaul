@@ -460,7 +460,7 @@ public class FFluidStatic {
 
 	public static boolean iterateFluidWay(int maxRange, BlockPos pos, IFluidActionIteratable actioner) {
 		boolean frst = true;
-		boolean client = false;
+		boolean client;
 		Level w = actioner.getWorld();
 		Random random = new Random();
 		IWWSG wws = ((IWorldExtended) w).getWWS();
@@ -737,8 +737,8 @@ public class FFluidStatic {
 		}
 	}
 
-	public static void onBottleUse(Level w, Player p, InteractionHand hand,
-			CallbackInfoReturnable<InteractionResultHolder<ItemStack>> ci, ItemStack stack) {
+	public static void onBottleUse(Level w, Player p,
+								   CallbackInfoReturnable<InteractionResultHolder<ItemStack>> ci, ItemStack stack) {
 		BlockHitResult rt = rayTrace(w, p, ClipContext.Fluid.ANY);
 		BlockPos pos = rt.getBlockPos();
 
@@ -797,7 +797,7 @@ public class FFluidStatic {
 		}
 		PistonStructureResolver ps = e.getStructureHelper();
 
-		if (!ps.resolve()) {
+		if (!Objects.requireNonNull(ps).resolve()) {
 			return;
 		}
 		List<BlockPos> poslist = ps.getToDestroy();

@@ -35,7 +35,7 @@ public abstract class FFluidBasic extends BasicExecutor {
 
 	protected final WorldWorkSet castOwner;
 
-	protected int level = 0;
+	protected int level;
 	protected FluidState fs;
 	protected BlockState state;
 
@@ -57,17 +57,15 @@ public abstract class FFluidBasic extends BasicExecutor {
 	public static void updater(UpdateTask task, ServerLevel world) {
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	protected void applyAction(BlockPos pos, BlockState newState, BlockState oldState, ServerLevel world) {
 		if (newState == oldState) {
 			return;
 		}
 		ChunkAccess ichunk = getChunk(pos);
-		if (!(ichunk instanceof LevelChunk)) {
+		if (!(ichunk instanceof LevelChunk chunk)) {
 			return;
 		}
-		LevelChunk chunk = (LevelChunk) ichunk;
 		Block block = newState.getBlock();
 
 		BlockPos posu = pos.above();
@@ -90,8 +88,8 @@ public abstract class FFluidBasic extends BasicExecutor {
 				((IFlowingFluid) fluid).beforeReplacingBlockCustom(world, pos, oldState);
 			}
 
-			if (chunk.getFullStatus() != null
-					&& chunk.getFullStatus().isOrAfter(FullChunkStatus.BLOCK_TICKING)) {
+            chunk.getFullStatus();
+            if (chunk.getFullStatus().isOrAfter(FullChunkStatus.BLOCK_TICKING)) {
 				world.sendBlockUpdated(pos, oldState, newState, 3);
 			}
 
@@ -142,7 +140,7 @@ public abstract class FFluidBasic extends BasicExecutor {
 			unban(pos2);
 			return false;
 		}
-		point1: if (!trySwap(pos1, pos2, h, state1, state2)) {
+		point1: {
 			FluidState fs1 = state1.getFluidState();
 			FluidState fs2 = state2.getFluidState();
 			int l1 = fs1.getAmount();
@@ -215,19 +213,10 @@ public abstract class FFluidBasic extends BasicExecutor {
 		unban(pos2);
 		return ss;
 	}
-
-	protected boolean trySwap(BlockPos pos1, BlockPos pos2, int h, BlockState state1, BlockState state2) {
-		return false;
-	}
-
 	protected abstract void execute();
 
 	protected boolean canOnlyFillCube(BlockState bs) {
 		return FFluidStatic.canOnlyFullCube(bs);
-	}
-
-	protected boolean canOnlyFillCube(Block b) {
-		return FFluidStatic.canOnlyFullCube(b);
 	}
 
 	protected boolean validate(BlockPos p) {
@@ -235,9 +224,6 @@ public abstract class FFluidBasic extends BasicExecutor {
 		boolean ss = owner.getG().banPos(l);
 		if (ss) {
 			banPoses.add(p);
-		} else {
-			// System.out.println(p);
-			// castOwner.addNTTask(l, 2);
 		}
 		return ss;
 	}
@@ -318,8 +304,8 @@ public abstract class FFluidBasic extends BasicExecutor {
 		return FFluidStatic.canReach(pos1, pos2, state1, state2, fluid, w);
 	}
 
-	public static enum Mode {
-		DEFAULT, EQUALIZER;
-	}
+	public enum Mode {
+		DEFAULT, EQUALIZER
+    }
 
 }

@@ -8,16 +8,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.skds.core.api.IBlockExtended;
 import net.skds.core.util.CustomBlockPars;
-import net.skds.wpo.util.MixinHelper;
 
 public class ParsApplier {
-
 	public static void applyFluidPars(ParsGroup<FluidPars> FG) {
 		for (Block b : FG.blocks) {
-			if (MixinHelper.shouldAffectBlock(b)) {
-				CustomBlockPars pars = ((IBlockExtended) b).getCustomBlockPars();
-				pars.put(FluidPars.class, FG.param);
-			}
+			CustomBlockPars pars = ((IBlockExtended) b).getCustomBlockPars();
+			pars.put(FluidPars.class, FG.param);
 		}
 	}
 
@@ -29,19 +25,13 @@ public class ParsApplier {
 		long t0 = System.currentTimeMillis();
 		LOGGER.info("Cleaning blocks...");
 
-		ForgeRegistries.BLOCKS.getValues().forEach(block -> {
-			((IBlockExtended) block).setCustomBlockPars(new CustomBlockPars());
-		});
+		ForgeRegistries.BLOCKS.getValues().forEach(block -> ((IBlockExtended) block).setCustomBlockPars(new CustomBlockPars()));
 
 		LOGGER.info("Reading fluid configs...");
 
-		reader.FP.forEach((name, pars) -> {
-			applyFluidPars(pars);
-		});
+		reader.FP.forEach((name, pars) -> applyFluidPars(pars));
 
 		LOGGER.info("Configs reloaded in " + (System.currentTimeMillis() - t0) + "ms");
-
-		//System.out.println(reader.BFP);
 	}
 
 	public static class ParsGroup<A> {

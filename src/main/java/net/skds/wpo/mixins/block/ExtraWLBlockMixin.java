@@ -2,11 +2,7 @@ package net.skds.wpo.mixins.block;
 
 import net.skds.core.api.IBlockExtraStates;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.At;
 
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.DoorBlock;
@@ -17,8 +13,6 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.skds.wpo.registry.BlockStateProps;
 import net.skds.wpo.util.interfaces.IBaseWL;
-
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 
 @Mixin(value = { DoorBlock.class, FenceGateBlock.class, LeavesBlock.class })
 public class ExtraWLBlockMixin extends Block implements IBaseWL, SimpleWaterloggedBlock, IBlockExtraStates {
@@ -32,7 +26,7 @@ public class ExtraWLBlockMixin extends Block implements IBaseWL, SimpleWaterlogg
 		builder.add(BlockStateProps.FFLUID_LEVEL);
 		try {
 			builder.add(BlockStateProperties.WATERLOGGED);
-		} catch (Exception e) {
+		} catch (Exception ignored) {
 		}
 	}
 

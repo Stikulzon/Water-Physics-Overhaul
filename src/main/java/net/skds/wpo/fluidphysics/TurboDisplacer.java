@@ -16,16 +16,10 @@ public class TurboDisplacer {
 
 
 	public static void markForDisplace(ServerLevel serverLevel, BlockPos pos, BlockState oldBS, BlockState newBS) {
-		//World serverLevel = (World) serverLevel;
-		//BlockPos pos = e.getPos();
-		//BlockState oldBS = serverLevel.getBlockState(pos);
 		FluidState oldFS = oldBS.getFluidState();
-//		FluidState newFS = newBS.getFluidState();
 		Fluid oldFluid = oldFS.getType();
-		//BlockState newBS = e.getPlacedBlock();
 		Block newBlock = newBS.getBlock();
 		int oldLevel = oldFS.getAmount();
-//		int newLevel = newFS.getLevel();
 		if (oldFS.isEmpty()) {
 			return;
 		}

@@ -5,7 +5,6 @@ import static net.skds.wpo.WPOConfig.MAX_FLUID_LEVEL;
 import java.util.Iterator;
 
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
@@ -79,7 +78,7 @@ public class FFluidDefault extends FFluidBasic {
 					return;
 				}
 			} else {
-				flowDown(posD, downstate);
+				flowDown(downstate);
 				addPassedEq(posD);
 				setState(pos, state);
 				setState(posD, downstate);
@@ -90,20 +89,18 @@ public class FFluidDefault extends FFluidBasic {
 		}
 
 		if (!dc && FFluidStatic.canOnlyFullCube(state)) {
-			Iterator<Direction> dirs = Direction.Plane.HORIZONTAL.iterator();
-			while (dirs.hasNext()) {
-				Direction dir = dirs.next();
-				BlockPos pos2 = pos.relative(dir);
-				if (!validate(pos2)) {
-					return;
-				}
-				BlockState state2 = getBlockState(pos2);
-				if (state2.getFluidState().isEmpty() && !FFluidStatic.canOnlyFullCube(state2)
-						&& canReach(pos, pos2, state, state2)) {
-					flowFullCube(pos2, state2);
-					return;
-				}
-			}
+            for (Direction dir : Direction.Plane.HORIZONTAL) {
+                BlockPos pos2 = pos.relative(dir);
+                if (!validate(pos2)) {
+                    return;
+                }
+                BlockState state2 = getBlockState(pos2);
+                if (state2.getFluidState().isEmpty() && !FFluidStatic.canOnlyFullCube(state2)
+                        && canReach(pos, pos2, state, state2)) {
+                    flowFullCube(pos2, state2);
+                    return;
+                }
+            }
 		}
 
 		Iterator<Direction> dirs = Direction.Plane.HORIZONTAL.iterator();
@@ -169,7 +166,7 @@ public class FFluidDefault extends FFluidBasic {
 				if (nbc[i]) {
 					if (r == 0 && canFlow(pos, pos2, state, nbs[i], false, false)) {
 						nbs[i] = getUpdatedState(nbs[i], level2);
-						flowTo(pos2, nbs[i], i);
+						flowTo(nbs[i], i);
 					} else {
 						nbs[i] = getUpdatedState(nbs[i], level2);
 					}
@@ -218,7 +215,7 @@ public class FFluidDefault extends FFluidBasic {
 		c = 0;
 	}
 
-	private void flowDown(BlockPos pos2, BlockState state2) {
+	private void flowDown(BlockState state2) {
 		if (state2 == null) {
 			cancel = true;
 			return;
@@ -251,7 +248,7 @@ public class FFluidDefault extends FFluidBasic {
 		dc = true;
 	}
 
-	private void flowTo(BlockPos pos2, BlockState state2, int side) {
+	private void flowTo(BlockState state2, int side) {
 		if (state2 == null) {
 			cancel = true;
 			return;
@@ -294,21 +291,11 @@ public class FFluidDefault extends FFluidBasic {
 			return false;
 		}
 
-		// if ((state1.getBlock() instanceof IWaterLoggable || state2.getBlock()
-		// instanceof IWaterLoggable)
-		// && !(fluid instanceof WaterFluid)) {
-		// return false;
-		// }
-
 		if (!canReach(pos1, pos2, state1, state2)) {
 			return false;
 		}
 
 		FluidState fs2 = state2.getFluidState();
-		// if ((!fs2.isEmpty() && !isThisFluid(fs2.getFluid())) &&
-		// !state1.getFluidState().canDisplace(w, pos2,
-		// state2.getFluidState().getFluid(), FFluidStatic.dirFromVec(pos1, pos2)))
-		// return false;
 
 		int level2 = fs2.getAmount();
 		if (level2 >= MAX_FLUID_LEVEL && !ignoreLevels && fluid.isSame(fs2.getType())) {
@@ -329,10 +316,6 @@ public class FFluidDefault extends FFluidBasic {
 			} else {
 				return (level2 + 2 < level);
 			}
-		} else if (!down && level2 + 1 >= level) {
-			return false;
-		}
-
-		return true;
-	}
+		} else return down || level2 + 1 < level;
+    }
 }

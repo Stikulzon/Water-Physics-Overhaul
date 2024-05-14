@@ -20,7 +20,6 @@ public class WPO
 {
     public static final String MOD_ID = "wpo";
     public static final String MOD_NAME = "Water Physics Overhaul";
-    // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
 
     public static Events EVENTS = new Events();
@@ -29,7 +28,6 @@ public class WPO
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
 
-        // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(EVENTS);
         MinecraftForge.EVENT_BUS.register(this);
       

@@ -74,8 +74,6 @@ public abstract class LivingEntityMixin extends Entity {
             FluidState fluidstate = this.level().getFluidState(this.blockPosition());
             // LERP: (water amount: 0 to AMOUNT_FULL) -> (speed: landDrag to oldWaterDrag)  => see lerp for Depth Strider
             float waterDrag = landDrag + (oldWaterDrag - landDrag) * fluidstate.getAmount() / FluidState.AMOUNT_FULL;
-//            LOGGER.info("LivingEntity.travel: water_level=" + fluidstate.getAmount() + ", oldDrag=" + oldWaterDrag +
-//                    ", newDrag=" + waterDrag + ", landDrag=" + landDrag + ", blockFriction=" + f3);
             return waterDrag;
         } else {
             return oldWaterDrag;

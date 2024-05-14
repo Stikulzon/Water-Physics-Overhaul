@@ -29,8 +29,6 @@ public class WPOConfig {
 
     public static class Main {
         public final ForgeConfigSpec.IntValue maxSlideDist, maxEqDist, maxBucketDist;
-//        public final ForgeConfigSpec.ConfigValue<List<? extends String>> blockWhitelist;
-        public final ForgeConfigSpec.ConfigValue<List<String>> affectedBlocks;
 
         public Main(ForgeConfigSpec.Builder builder) {
             builder.comment("General Configuration").push("general");
@@ -49,16 +47,6 @@ public class WPOConfig {
                     .comment("Maximum horizontal bucket reach from click location (for water packet pickup)")
                     .translation("wpo.config.maxBucketDist")
                     .defineInRange("maxBucketDistance", 8, 0, MAX_FLUID_LEVEL);
-
-//            blockWhitelist = builder
-//                    .comment("A list of blocks (using Resource Locations) that WPO should affect. " +
-//                            "If empty, WPO will affect all blocks except those specified in the blacklist.")
-//                    .translation("wpo.config.blockWhitelist")
-//                    .defineList("blockWhitelist", Lists.newArrayList(), o -> o instanceof String);
-
-            affectedBlocks = builder
-                    .comment("A list of block IDs that WPO should affect. Use '#' prefix for tag IDs. Leave empty to affect all blocks.")
-                    .define("affectedBlocks", new ArrayList<>());
 
             builder.pop();
         }

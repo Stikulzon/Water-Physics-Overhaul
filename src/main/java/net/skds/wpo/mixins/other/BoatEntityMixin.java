@@ -9,7 +9,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import net.minecraft.world.entity.vehicle.Boat;
 
-@Mixin(value = { Boat.class })
+@Mixin(Boat.class)
 public class BoatEntityMixin {
 
 	@Inject(method = "isUnderwater()Lnet/minecraft/world/entity/vehicle/Boat$Status;", at = @At(value = "RETURN", ordinal = 0), slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/material/FluidState;isSource()Z")), cancellable = true)
