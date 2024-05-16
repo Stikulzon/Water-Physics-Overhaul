@@ -8,16 +8,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.eventbus.api.Event;
 import net.skds.wpo.WPOConfig;
 
 import java.util.Random;
 import java.util.Set;
 
 import static net.skds.wpo.fluidphysics.FFluidStatic.*;
-
-public class FluidDisplacer implements IFluidActionIteratable {
+public class FluidDisplacer2 implements IFluidActionIteratable {
 
     int mfl = WPOConfig.MAX_FLUID_LEVEL;
     int sl;
@@ -25,19 +22,16 @@ public class FluidDisplacer implements IFluidActionIteratable {
     Level world;
     Random random;
     Fluid fluid;
-    BlockEvent.EntityPlaceEvent event;
     Long2ObjectLinkedOpenHashMap<BlockState> states = new Long2ObjectLinkedOpenHashMap<>();
     BlockState obs;
 
-    FluidDisplacer(Level w, BlockEvent.EntityPlaceEvent e) {
-        obs = e.getBlockSnapshot().getReplacedBlock();
+    FluidDisplacer2(Level w, BlockState obs) {
         FluidState ofs = obs.getFluidState();
-
+        this.obs = obs;
         fluid = ofs.getType();
         sl = ofs.getAmount();
         world = w;
         random = new Random();
-        event = e;
     }
 
     @Override
@@ -90,7 +84,6 @@ public class FluidDisplacer implements IFluidActionIteratable {
     @Override
     public void finish() {
         fillStates(states, world);
-        event.setResult(Event.Result.ALLOW);
     }
 
     @Override

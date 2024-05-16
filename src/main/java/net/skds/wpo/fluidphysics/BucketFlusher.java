@@ -25,8 +25,7 @@ import static net.skds.wpo.fluidphysics.FFluidStatic.*;
 public class BucketFlusher implements IFluidActionIteratable {
 
     int mfl = WPOConfig.MAX_FLUID_LEVEL;
-    int bucketLevels = WPOConfig.MAX_FLUID_LEVEL;
-    int sl = bucketLevels;
+    int sl;
     boolean complete = false;
     Level world;
     Fluid fluid;
@@ -92,8 +91,6 @@ public class BucketFlusher implements IFluidActionIteratable {
                 : SoundEvents.BUCKET_EMPTY;
         p.playSound(soundevent, 1.0F, 1.0F);
         if (!p.getAbilities().instabuild) {
-            // bucket.fill(FluidStack.EMPTY, FluidAction.EXECUTE);
-            // event.setFilledBucket(bucket.getContainer());
             event.setFilledBucket(new ItemStack(Items.BUCKET));
         }
     }

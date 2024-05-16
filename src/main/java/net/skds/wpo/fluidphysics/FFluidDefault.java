@@ -1,16 +1,16 @@
 package net.skds.wpo.fluidphysics;
 
-import static net.skds.wpo.WPOConfig.MAX_FLUID_LEVEL;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
+import net.skds.core.api.IWWSG;
+import net.skds.wpo.WPOConfig;
 
 import java.util.Iterator;
 
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerLevel;
-import net.skds.core.api.IWWSG;
-import net.skds.wpo.WPOConfig;
+import static net.skds.wpo.WPOConfig.MAX_FLUID_LEVEL;
 
 public class FFluidDefault extends FFluidBasic {
 
@@ -26,7 +26,7 @@ public class FFluidDefault extends FFluidBasic {
 	int c = 0;
 	int sum;
 
-	FFluidDefault(ServerLevel w, BlockPos pos, WorldWorkSet owner, FFluidBasic.Mode mode, int worker) {
+	FFluidDefault(ServerLevel w, BlockPos pos, WorldWorkSet owner, Mode mode, int worker) {
 		super(w, pos, mode, owner, worker);
 
 		this.sum = this.level;
@@ -37,16 +37,6 @@ public class FFluidDefault extends FFluidBasic {
 
 	@Override
 	protected void execute() {
-		// TODO: disabled for now, because was not doing equalization. However idk what this is for... chunk border checks?
-		// INFO: problem: current pos is never ticking (next to player), thus isPositionTicking does not work here
-		// INFO: why border chunks should still work: we only get here from FlowingFluidMixin.tick(), so pos has to be ticking (and there are checks)
-//		if (!w.getChunkSource().isPositionTicking(pos.asLong())) {
-//			synchronized (w) {
-//				w.getLiquidTicks().scheduleTick(pos, fluid, FFluidStatic.getTickRate((FlowingFluid) fluid, w));
-//			}
-//			return;
-//		}
-
 		if (!validate(pos)) {
 			return;
 		}
@@ -68,7 +58,6 @@ public class FFluidDefault extends FFluidBasic {
 			return;
 		}
 
-		// System.out.println(pos);
 		if (canFlow(pos, posD, state, downstate, true, false)) {
 			if (FFluidStatic.canOnlyFullCube(state) || FFluidStatic.canOnlyFullCube(downstate)) {
 				int l = state.getFluidState().getAmount();
@@ -186,15 +175,8 @@ public class FFluidDefault extends FFluidBasic {
 			setState(posD, downstate);
 		}
 
-		// if (getBlockState(pos.up()).getFluidState().isEmpty() &&
-		// !FFluidStatic.canOnlyFullCube(state)
-		// && !canFlow(pos, posD, state, downstate, true, false) && !cancel)
-
-		// System.out.println(state.getFluidState() + " " + sc);
 		if (getBlockState(pos.above()).getFluidState().isEmpty() && !FFluidStatic.canOnlyFullCube(state) && !dc && !sc
 				&& !cancel) {
-			// equalize();
-			// castOwner.addEQTask(pos.toLong(), (FlowingFluid) fluid);
 
 			banPoses.remove(pos);
 			IWWSG wwsg = owner.getG();
@@ -202,7 +184,7 @@ public class FFluidDefault extends FFluidBasic {
 			banPoses.clear();
 			banPoses.add(pos);
 
-			new FFluidEQ(w, pos, castOwner, FFluidBasic.Mode.EQUALIZER, worker).run();
+			new FFluidEQ(w, pos, castOwner, Mode.EQUALIZER, worker).run();
 		}
 	}
 

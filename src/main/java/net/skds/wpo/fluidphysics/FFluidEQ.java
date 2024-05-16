@@ -1,28 +1,28 @@
 package net.skds.wpo.fluidphysics;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.WaterFluid;
+import net.skds.wpo.WPOConfig;
+
 import static net.skds.wpo.WPOConfig.COMMON;
 import static net.skds.wpo.WPOConfig.MAX_FLUID_LEVEL;
 
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.SimpleWaterloggedBlock;
-import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.material.WaterFluid;
-import net.minecraft.core.Direction;
-import net.minecraft.core.BlockPos;
-import net.minecraft.util.Mth;
-import net.minecraft.server.level.ServerLevel;
-import net.skds.wpo.WPOConfig;
-
 public class FFluidEQ extends FFluidBasic {
 
-	FFluidEQ(ServerLevel w, BlockPos pos, WorldWorkSet owner, FFluidBasic.Mode mode, int worker) {
+	FFluidEQ(ServerLevel w, BlockPos pos, WorldWorkSet owner, Mode mode, int worker) {
 		super(w, pos, mode, owner, worker);
 	}
 
 	@Override
 	public void execute() {
 		if (getBlockState(pos.above()).getFluidState().isEmpty() && !FFluidStatic.canOnlyFullCube(state)
-				&& !canFlow(pos, pos.below(), state, getBlockState(pos.below()), true, false)) {
+				&& !canFlow(pos, pos.below(), state, getBlockState(pos.below()))) {
 			equalize();
 		}
 	}
@@ -101,7 +101,7 @@ public class FFluidEQ extends FFluidBasic {
 							selPosb2 = true;
 							selPos2 = pos1;
 						}
-						bl = (canFlow(pos1, pos1.below(), state1, getBlockState(pos1.below()), true, false))
+						bl = (canFlow(pos1, pos1.below(), state1, getBlockState(pos1.below())))
 								&& !FFluidStatic.canOnlyFullCube(state2);
 					} else {
 						break wh;
@@ -265,16 +265,15 @@ public class FFluidEQ extends FFluidBasic {
 
 	}
 
-	private boolean canFlow(BlockPos pos1, BlockPos pos2, BlockState state1, BlockState state2, boolean down,
-			boolean ignoreLevels) {
+	private boolean canFlow(BlockPos pos1, BlockPos pos2, BlockState state1, BlockState state2) {
 		if (state2 == null) {
 			cancel = true;
 			return false;
 		}
-		if ((FFluidStatic.canOnlyFullCube(state2) || FFluidStatic.canOnlyFullCube(state)) && !down) {
-			return false;
-		}
-		if (FFluidStatic.canOnlyFullCube(state2) && state1.getFluidState().getAmount() < WPOConfig.MAX_FLUID_LEVEL) {
+        if (!FFluidStatic.canOnlyFullCube(state2)) {
+            FFluidStatic.canOnlyFullCube(state);
+        }
+        if (FFluidStatic.canOnlyFullCube(state2) && state1.getFluidState().getAmount() < WPOConfig.MAX_FLUID_LEVEL) {
 			return false;
 		}
 
@@ -290,26 +289,6 @@ public class FFluidEQ extends FFluidBasic {
 		FluidState fs2 = state2.getFluidState();
 
 		int level2 = fs2.getAmount();
-		if (level2 >= MAX_FLUID_LEVEL && !ignoreLevels) {
-			return false;
-		}
-
-		if (level == 1 && !down && !ignoreLevels) {
-			if (fs2.isEmpty()) {
-				pos1 = pos2;
-				pos2 = pos2.below();
-				state1 = state2;
-				state2 = getBlockState(pos2);
-				if (isThisFluid(state2.getFluidState().getType()) || state2.getFluidState().isEmpty()) {
-					return canFlow(pos1, pos2, state1, state2, true, false);
-				} else {
-					return false;
-				}
-			} else {
-				return (level2 + 2 < level);
-			}
-		}
-
-		return true;
-	}
+        return level2 < MAX_FLUID_LEVEL;
+    }
 }

@@ -7,7 +7,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.*;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static net.skds.wpo.fluidphysics.FFluidStatic.*;
@@ -37,9 +38,6 @@ public class BottleFiller implements IFluidActionIteratable {
 
     @Override
     public void run(BlockPos pos, BlockState state) {
-        // world.addParticle(ParticleTypes.CLOUD, pos.getX() + 0.5, pos.getY() + 0.5,
-        // pos.getZ() + 0.5, 0, 0, 0);
-
         if (canOnlyFullCube(state) && state.getValue(BlockStateProperties.WATERLOGGED)) {
             states.clear();
             states.put(pos.asLong(), getUpdatedState(state, 0, fluid));

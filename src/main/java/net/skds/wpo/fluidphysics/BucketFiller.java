@@ -12,7 +12,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.*;
+import net.minecraft.world.level.material.FlowingFluid;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.fluids.FluidStack;
@@ -20,6 +22,7 @@ import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.skds.wpo.WPOConfig;
 import net.skds.wpo.util.ExtendedFHIS;
+
 import static net.skds.wpo.fluidphysics.FFluidStatic.*;
 
 public class BucketFiller implements IFluidActionIteratable {
@@ -111,7 +114,6 @@ public class BucketFiller implements IFluidActionIteratable {
                 : SoundEvents.BUCKET_FILL;
         p.playSound(soundevent, 1.0F, 1.0F);
         if (!p.getAbilities().instabuild) {
-            // bucket.fill(new FluidStack(fluid, 1000), FluidAction.EXECUTE);
             event.setFilledBucket(new ItemStack(fluid.getBucket()));
         }
     }

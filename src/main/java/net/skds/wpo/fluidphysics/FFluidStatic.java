@@ -6,7 +6,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -34,7 +33,6 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.event.level.PistonEvent;
-import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.skds.core.api.IBlockExtended;
 import net.skds.core.api.IWWSG;
@@ -64,9 +62,9 @@ public class FFluidStatic {
 			dirs[5] = Direction.UP;
 		}
 		int i0 = r.nextInt(4);
-		for (int index = 0; index < 4; ++index) {
-			Direction dir = Direction.from2DDataValue((index + i0) % 4);
-			dirs[index] = dir;
+		for (int i = 0; i < 4; ++i) {
+			Direction dir = Direction.from2DDataValue((i + i0) % 4);
+			dirs[i] = dir;
 		}
 
 		return dirs;
@@ -334,7 +332,6 @@ public class FFluidStatic {
 		Direction dir = dirFromVec(pos1, pos2);
 		if (fp2 != null) {
 			if (fp2.isPassable == 1) {
-				// System.out.println(state2);
 				return true;
 			} else if (fp2.isPassable == -1) {
 				return false;
@@ -507,7 +504,6 @@ public class FFluidStatic {
 						setLocal2.add(pos2);
 						if (actioner.isValidPos(pos2)) {
 							if (!client && setBan.add(pos2) && !wws.banPos(pos2.asLong())) {
-								//wws.unbanPoses(setBan);
 								setBan.forEach(p -> wws.unbanPos(p.asLong()));
 								return false;
 							}
@@ -526,206 +522,13 @@ public class FFluidStatic {
 		if (actioner.isComplete()) {
 			actioner.finish();
 			if (!client)
-				//wws.unbanPoses(setBan);
 				setBan.forEach(p -> wws.unbanPos(p.asLong()));
 			return true;
 		} else {
 			actioner.fail();
 			if (!client)
-				//wws.unbanPoses(setBan);
 				setBan.forEach(p -> wws.unbanPos(p.asLong()));
 			return false;
-		}
-	}
-
-	public static class FluidDisplacer2 implements IFluidActionIteratable {
-
-		int mfl = WPOConfig.MAX_FLUID_LEVEL;
-		// int bucketLevels = PhysEXConfig.MAX_FLUID_LEVEL;
-		int sl;
-		boolean complete = false;
-		Level world;
-		Random random;
-		Fluid fluid;
-		Long2ObjectLinkedOpenHashMap<BlockState> states = new Long2ObjectLinkedOpenHashMap<>();
-		BlockState obs;
-
-		FluidDisplacer2(Level w, BlockState obs) {
-			FluidState ofs = obs.getFluidState();
-			this.obs = obs;
-			fluid = ofs.getType();
-			sl = ofs.getAmount();
-			world = w;
-			random = new Random();
-		}
-
-		@Override
-		public boolean isComplete() {
-			return complete;
-		}
-
-		@Override
-		public void addZero(Set<BlockPos> set, BlockPos p0) {
-			for (Direction d : getRandomizedDirections(random, true)) {
-				BlockPos pos2 = p0.relative(d);
-				BlockState state2 = world.getBlockState(pos2);
-				if (isValidState(state2) && canReach(p0, pos2, obs, state2, fluid, world)) {
-					set.add(pos2);
-				}
-			}
-		}
-
-		@Override
-		public void run(BlockPos pos, BlockState state) {
-			// world.addParticle(ParticleTypes.CLOUD, pos.getX() + 0.5, pos.getY() + 0.5,
-			// pos.getZ() + 0.5, 0, 0, 0);
-
-			// if (fb) {
-			// fb = false;
-			// return;
-			// }
-
-			if (canOnlyFullCube(state) && state.hasProperty(BlockStateProperties.WATERLOGGED) && !state.getValue(BlockStateProperties.WATERLOGGED)) {
-				states.clear();
-				states.put(pos.asLong(), getUpdatedState(state, mfl, fluid));
-				complete = true;
-				return;
-			}
-			FluidState fs = state.getFluidState();
-			int el = mfl - fs.getAmount();
-			int osl = sl;
-			sl -= el;
-			int nl = mfl;
-			if (sl <= 0) {
-				nl = mfl + sl;
-				complete = true;
-			}
-			if (osl != sl)
-				states.put(pos.asLong(), getUpdatedState(state, nl, fluid));
-		}
-
-		@Override
-		public Level getWorld() {
-			return world;
-		}
-
-		@Override
-		public boolean isValidState(BlockState state) {
-			return fluid.isSame(state.getFluidState().getType()) || state.getFluidState().isEmpty();
-		}
-
-		@Override
-		public void finish() {
-			fillStates(states, world);
-		}
-
-		@Override
-		public void fail() {
-			// event.setCanceled(true);
-		}
-	}
-
-	private static class PistonDisplacer implements IFluidActionIteratable {
-
-		int mfl = WPOConfig.MAX_FLUID_LEVEL;
-		// int bucketLevels = PhysEXConfig.MAX_FLUID_LEVEL;
-		int sl;
-		boolean complete = false;
-		Level world;
-		Random random;
-		Fluid fluid;
-		// PistonBlockStructureHelper ps;
-		Set<BlockPos> movepos = new HashSet<>();
-		PistonEvent.Pre event;
-		Long2ObjectLinkedOpenHashMap<BlockState> states = new Long2ObjectLinkedOpenHashMap<>();
-		BlockState obs;
-
-		PistonDisplacer(Level w, PistonEvent.Pre e, BlockState os, PistonStructureResolver ps) {
-			this.obs = os;
-			FluidState ofs = obs.getFluidState();
-			// this.ps = ps;
-			this.fluid = ofs.getType();
-			this.sl = ofs.getAmount();
-			this.world = w;
-			this.random = new Random();
-			this.event = e;
-			movepos.addAll(ps.getToDestroy());
-			movepos.addAll(ps.getToPush());
-			for (BlockPos p : ps.getToPush()) {
-				movepos.add(p.relative(event.getDirection()));
-				// System.out.println(p.relative(event.getDirection()));
-			}
-		}
-
-		@Override
-		public boolean isComplete() {
-			return complete;
-		}
-
-		@Override
-		public void addZero(Set<BlockPos> set, BlockPos p0) {
-			for (Direction d : getRandomizedDirections(random, true)) {
-				BlockPos pos2 = p0.relative(d);
-				BlockState state2 = world.getBlockState(pos2);
-				if (isValidState(state2) && canReach(p0, pos2, obs, state2, fluid, world)) {
-					set.add(pos2);
-				}
-			}
-		}
-
-		@Override
-		public void run(BlockPos pos, BlockState state) {
-			// world.addParticle(ParticleTypes.CLOUD, pos.getX() + 0.5, pos.getY() + 0.5,
-			// pos.getZ() + 0.5, 0, 0, 0);
-
-			// if (fb) {
-			// fb = false;
-			// return;
-			// }
-
-			if (canOnlyFullCube(state) && state.hasProperty(BlockStateProperties.WATERLOGGED) && !state.getValue(BlockStateProperties.WATERLOGGED)) {
-				states.clear();
-				states.put(pos.asLong(), getUpdatedState(state, mfl, fluid));
-				complete = true;
-				return;
-			}
-			FluidState fs = state.getFluidState();
-			int el = mfl - fs.getAmount();
-			int osl = sl;
-			sl -= el;
-			int nl = mfl;
-			if (sl <= 0) {
-				nl = mfl + sl;
-				complete = true;
-			}
-			if (osl != sl)
-				states.put(pos.asLong(), getUpdatedState(state, nl, fluid));
-		}
-
-		@Override
-		public Level getWorld() {
-			return world;
-		}
-
-		@Override
-		public boolean isValidState(BlockState state) {
-			return fluid.isSame(state.getFluidState().getType()) || state.getFluidState().isEmpty();
-		}
-
-		@Override
-		public boolean isValidPos(BlockPos pos) {
-			return !movepos.contains(pos);
-		}
-
-		@Override
-		public void finish() {
-			fillStates(states, world);
-			event.setResult(Result.ALLOW);
-		}
-
-		@Override
-		public void fail() {
-			event.setCanceled(true);
 		}
 	}
 

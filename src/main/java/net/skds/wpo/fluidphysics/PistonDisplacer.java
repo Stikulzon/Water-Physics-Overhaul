@@ -4,20 +4,22 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.piston.PistonStructureResolver;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.event.level.PistonEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.skds.wpo.WPOConfig;
 
+import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
 import static net.skds.wpo.fluidphysics.FFluidStatic.*;
 
-public class FluidDisplacer implements IFluidActionIteratable {
+public class PistonDisplacer implements IFluidActionIteratable {
 
     int mfl = WPOConfig.MAX_FLUID_LEVEL;
     int sl;
@@ -25,19 +27,24 @@ public class FluidDisplacer implements IFluidActionIteratable {
     Level world;
     Random random;
     Fluid fluid;
-    BlockEvent.EntityPlaceEvent event;
+    Set<BlockPos> movepos = new HashSet<>();
+    PistonEvent.Pre event;
     Long2ObjectLinkedOpenHashMap<BlockState> states = new Long2ObjectLinkedOpenHashMap<>();
     BlockState obs;
 
-    FluidDisplacer(Level w, BlockEvent.EntityPlaceEvent e) {
-        obs = e.getBlockSnapshot().getReplacedBlock();
+    PistonDisplacer(Level w, PistonEvent.Pre e, BlockState os, PistonStructureResolver ps) {
+        this.obs = os;
         FluidState ofs = obs.getFluidState();
-
-        fluid = ofs.getType();
-        sl = ofs.getAmount();
-        world = w;
-        random = new Random();
-        event = e;
+        this.fluid = ofs.getType();
+        this.sl = ofs.getAmount();
+        this.world = w;
+        this.random = new Random();
+        this.event = e;
+        movepos.addAll(ps.getToDestroy());
+        movepos.addAll(ps.getToPush());
+        for (BlockPos p : ps.getToPush()) {
+            movepos.add(p.relative(event.getDirection()));
+        }
     }
 
     @Override
@@ -88,6 +95,11 @@ public class FluidDisplacer implements IFluidActionIteratable {
     }
 
     @Override
+    public boolean isValidPos(BlockPos pos) {
+        return !movepos.contains(pos);
+    }
+
+    @Override
     public void finish() {
         fillStates(states, world);
         event.setResult(Event.Result.ALLOW);
@@ -95,6 +107,6 @@ public class FluidDisplacer implements IFluidActionIteratable {
 
     @Override
     public void fail() {
-        // event.setCanceled(true);
+        event.setCanceled(true);
     }
 }

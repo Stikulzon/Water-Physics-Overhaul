@@ -5,7 +5,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.FullChunkStatus;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -125,99 +124,7 @@ public abstract class FFluidBasic extends BasicExecutor {
 		banPoses.forEach(p -> wwsg.unbanPos(p.asLong()));
 	}
 
-	protected boolean flow(BlockPos pos1, BlockPos pos2, int h) {
-		if (!validate(pos1)) {
-			return false;
-		}
-		if (!validate(pos2)) {
-			return false;
-		}
-		boolean ss = true;
-		BlockState state1 = getBlockState(pos1);
-		BlockState state2 = getBlockState(pos2);
-		if (canOnlyFillCube(state1) || canOnlyFillCube(state2)) {
-			unban(pos1);
-			unban(pos2);
-			return false;
-		}
-		point1: {
-			FluidState fs1 = state1.getFluidState();
-			FluidState fs2 = state2.getFluidState();
-			int l1 = fs1.getAmount();
-			int l2 = fs2.getAmount();
-
-			Fluid f1 = fs1.getType();
-			Fluid f2 = fs2.getType();
-			if (!f1.isSame(f2) && !(fs1.isEmpty() || fs2.isEmpty())) {
-
-				Direction dir = dirFromVec(pos1, pos2);
-				if (fs1.canBeReplacedWith(w, pos2, f2, dir)) {
-
-					state2 = Blocks.AIR.defaultBlockState();
-					fs2 = state2.getFluidState();
-					l2 = 0;
-				} else {
-					ss = false;
-					break point1;
-				}
-			}
-
-			if (h == 0) {
-				int d2 = (l1 - l2) / 2;
-				if (d2 == 0) {
-					if (l1 == 1 && l2 == 0) {
-						d2 = 1;
-					} else {
-						ss = false;
-						break point1;
-					}
-				}
-				l1 -= d2;
-				l2 += d2;
-				BlockState sn1 = getUpdatedState(state1, l1);
-				BlockState sn2 = getUpdatedState(state2, l2);
-				setState(pos1, sn1);
-				setState(pos2, sn2);
-			} else {
-				int sum = l1 + l2;
-				if (sum > MFL) {
-					if (h > 0) {
-						l1 = MFL;
-						l2 = sum - MFL;
-					} else {
-						l2 = MFL;
-						l1 = sum - MFL;
-					}
-				} else {
-					if (h > 0) {
-						l1 = sum;
-						l2 = 0;
-					} else {
-						boolean bl = l1 > 1;
-						l2 = sum;
-						l1 = 0;
-						if (bl) {
-							l2--;
-							l1++;
-						}
-					}
-				}
-				BlockState sn1 = getUpdatedState(state1, l1);
-				BlockState sn2 = getUpdatedState(state2, l2);
-				setState(pos1, sn1);
-				setState(pos2, sn2);
-			}
-		}
-
-		unban(pos1);
-		unban(pos2);
-		return ss;
-	}
 	protected abstract void execute();
-
-	protected boolean canOnlyFillCube(BlockState bs) {
-		return FFluidStatic.canOnlyFullCube(bs);
-	}
 
 	protected boolean validate(BlockPos p) {
 		long l = p.asLong();
@@ -226,12 +133,6 @@ public abstract class FFluidBasic extends BasicExecutor {
 			banPoses.add(p);
 		}
 		return ss;
-	}
-
-	protected void unban(BlockPos p) {
-		long l = p.asLong();
-		owner.getG().unbanPos(l);
-		banPoses.remove(p);
 	}
 
 	protected void addPassedEq(BlockPos addPos) {
@@ -243,30 +144,6 @@ public abstract class FFluidBasic extends BasicExecutor {
 	protected boolean isPassedEq(BlockPos isPos) {
 		long l = isPos.asLong();
 		return castOwner.isEqLocked(l);
-	}
-
-	protected boolean flowFullCubeV2(BlockPos pos1, BlockPos pos2) {
-		if (!validate(pos1)) {
-			return false;
-		}
-		if (!validate(pos2)) {
-			return false;
-		}
-		boolean bb = false;
-		BlockState state1 = getBlockState(pos1);
-		BlockState state2 = getBlockState(pos2);
-		int l1 = state1.getFluidState().getAmount();
-		int l2 = state2.getFluidState().getAmount();
-		if ((l1 == MFL && l2 == 0) || (l1 == 0 && l2 == MFL)) {
-			BlockState sn1 = getUpdatedState(state1, l2);
-			BlockState sn2 = getUpdatedState(state2, l1);
-			setState(pos1, sn1);
-			setState(pos2, sn2);
-			bb = true;
-		}
-		unban(pos1);
-		unban(pos2);
-		return bb;
 	}
 
 	protected void flowFullCube(BlockPos pos2, BlockState state2) {
